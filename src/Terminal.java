@@ -1,11 +1,18 @@
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 
-import java.io.File;
+import java.io.*;
+import java.util.*;
 
 public class Terminal {
     Parser parser;
     File currentPath =  new File(System.getProperty("user.dir"));
+
+    List<String> history;
+    public Terminal(Parser parser) {
+        this.parser = parser;
+        this.history = new ArrayList<>();
+    }
 
     private void copyDirectory(File source, File destination) throws IOException {
         if (source.isDirectory()) {
@@ -46,6 +53,7 @@ public class Terminal {
             File userHomeDirectory = new File(System.getProperty("user.home"));
             System.out.println("Changed directory to home directory: " + userHomeDirectory.getAbsolutePath());
             this.currentPath = userHomeDirectory;
+            history.add(parser.getFullCommand());
         } else if (args.length == 1) {
             String newDirectory = args[0];
             if (newDirectory.equals("..")) {
@@ -67,13 +75,37 @@ public class Terminal {
                     System.out.println("Directory not found: " + newDirectory);
                 }
             }
+            history.add(parser.getFullCommand());
         } else {
             System.out.println("Usage: cd [directory]");
         }
 
     }
     public void ls(String options){
-
+        String folderPath = currentPath.getPath();
+        File folder = new File(folderPath);
+        List<String> cur = new ArrayList<>();
+        if (folder.exists() && folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            for (File file : files) {
+                cur.add(file.getName());
+            }
+            if(options != null){
+                Collections.reverse(cur);
+            }else{
+                Collections.sort(cur);
+            }
+            if(!cur.isEmpty()){
+                System.out.println("Contents of " + folderPath + ":");
+                for(String ele: cur)
+                    System.out.println(ele);
+            }else{
+                System.out.println("The folder is empty.");
+            }
+            history.add(parser.getFullCommand());
+        } else {
+            System.out.println("The specified folder does not exist or is not a directory.");
+        }
     }
 
     public void mkdir(String[] args){
@@ -92,11 +124,13 @@ public class Terminal {
         }
 
         String fileName = args[0];
-        File fileToDelete = new File(currentDirectory, fileName);
+        File fileToDelete = new File(currentPath, fileName);
+//        File fileToDelete = new File(currentDirectory, fileName);
 
         if (fileToDelete.exists() && fileToDelete.isFile()) {
             if (fileToDelete.delete()) {
                  System.out.print ("Removed file: " + fileName);
+                 history.add(parser.getFullCommand());
             } else {
                  System.out.print ("Failed to remove file: " + fileName);
             }
@@ -126,6 +160,7 @@ public class Terminal {
         try {
             copyDirectory(sourceDirectory, destinationDirectory);
             System.out.print ("Directory copied successfully.");
+            history.add(parser.getFullCommand());
         } catch (IOException e) {
             System.out.print ("Error copying directory: " + e.getMessage());
         }
@@ -140,21 +175,28 @@ public class Terminal {
              pwd();
             
         }
-        else if ("cd".equals(command)) {
+        else if("cd".equals(command)) {
             cd(args);
         }else if("rm".equals(command))
         {
             rm(args);
-        } else if ("cp".equals(command) && option!=null ) {
+        } else if("cp".equals(command) && option!=null ) {
             cpR(args);
-            
-        }
-        
-        
-        else {
+
+        }else if("ls".equals(command)){
+            ls(option);
+        }else if("history".equals(command)){
+            getHistory();
+        } else {
             System.out.println("Error: '"+ command +"' not found or invalid parameters are entered!");
         }
 
     }
-   
+
+    void getHistory(){
+        System.out.println("Previous History:");
+        for(String ele: history){
+            System.out.println(ele);
+        }
+    }
 }

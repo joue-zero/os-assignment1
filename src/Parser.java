@@ -5,7 +5,9 @@ public class Parser {
     private String option;
     private String[] args;
 
+    private String fullCommand;
     public boolean parse(String input) {
+        fullCommand = input;
         String[] parts = input.split(" ");
         if (parts.length > 0) {
             commandName = parts[0];
@@ -22,6 +24,9 @@ public class Parser {
 
     public String getCommandName() {
         return commandName;
+    }
+    public String getFullCommand() {
+        return fullCommand;
     }
 
     public String getOption() {
