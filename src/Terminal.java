@@ -178,6 +178,47 @@ public class Terminal {
             System.out.print ("Error copying directory: " + e.getMessage());
         }
     }
+    public void cp(String[] args) {
+        if (args.length != 2) {
+            System.out.print ("Usage: cp  source_file destination_file");
+            return;
+        }
+        String sourceFilePath = currentPath + "\\" + args[0];
+        String destinationFilePath = currentPath + "\\" + args[1];
+        if(args[0].length() >= 3 && args[0].startsWith(":\\", 1)){
+            sourceFilePath = args[0];
+        }
+        if(args[1].length() >= 3 && args[1].startsWith(":\\", 1)){
+            destinationFilePath = args[1];
+        }
+        File sourceFile = new File(sourceFilePath);
+        File destinationFile = new File(destinationFilePath);
+
+        if (!sourceFile.exists() || !destinationFile.isFile()) {
+            System.out.print ("Source file does not exist.");
+            return;
+        }
+        if (destinationFile.exists() && !destinationFile.isFile()) {
+            System.out.print ("Destination is not a directory.");
+            return;
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(sourceFile);
+            FileOutputStream outputStream = new FileOutputStream(destinationFile);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            inputStream.close();
+            outputStream.close();
+            System.out.println("File copied successfully.");
+            history.add(parser.getFullCommand());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     // ...
     //This method will choose the suitable command method to be called
     public void chooseCommandAction(){
@@ -193,8 +234,12 @@ public class Terminal {
         }else if("rm".equals(command))
         {
             rm(args);
-        } else if("cp".equals(command) && option!=null ) {
-            cpR(args);
+        } else if("cp".equals(command)) {
+            if(option != null){
+                cpR(args);
+            }else{
+                cp(args);
+            }
 
         }else if("ls".equals(command)){
             ls(option);
