@@ -120,24 +120,24 @@ public class Terminal {
     }
     public void rm(String[] args) {
         if (args.length != 1) {
-             System.out.print ("Usage: rm <file_name>");
-        }
-
-        String fileName = args[0];
-        File fileToDelete = new File(currentPath, fileName);
-//        File fileToDelete = new File(currentDirectory, fileName);
-
-        if (fileToDelete.exists() && fileToDelete.isFile()) {
-            if (fileToDelete.delete()) {
-                 System.out.print ("Removed file: " + fileName);
-                 history.add(parser.getFullCommand());
-            } else {
-                 System.out.print ("Failed to remove file: " + fileName);
-            }
+            System.out.println("Usage: rm <file_name>");
         } else {
-             System.out.print ("File not found: " + fileName);
+            String fileName = args[0];
+            File fileToDelete = new File(this.currentPath, fileName);
+
+            if (fileToDelete.exists() && fileToDelete.isFile()) {
+                if (fileToDelete.delete()) {
+                    System.out.println("Removed file: " + fileName);
+                    history.add(parser.getFullCommand());
+                } else {
+                    System.out.println("Failed to remove file: " + fileName);
+                }
+            } else {
+                System.out.println("File not found: " + fileName);
+            }
         }
     }
+
     public void cpR(String[] args) {
         if (args.length != 2) {
             System.out.print ("Usage: cp -r source_directory destination_directory");

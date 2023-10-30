@@ -8,7 +8,7 @@ public class Main
         System.out.println("Simple CLI - Type 'exit' to quit.");
 
         while (true) {
-            System.out.print("> ");
+            System.out.print("\n> ");
 
             Scanner scanner = new Scanner(System.in);
 
