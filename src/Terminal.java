@@ -7,6 +7,32 @@ public class Terminal {
     Parser parser;
     File currentPath =  new File(System.getProperty("user.dir"));
 
+    private void copyDirectory(File source, File destination) throws IOException {
+        if (source.isDirectory()) {
+            if (!destination.exists()) {
+                destination.mkdirs();
+            }
+
+            String[] files = source.list();
+            if (files != null) {
+                for (String file : files) {
+                    File srcFile = new File(source, file);
+                    File destFile = new File(destination, file);
+
+                    copyDirectory(srcFile, destFile);
+                }
+            }
+        } else {
+            try (InputStream in = new FileInputStream(source);
+                 OutputStream out = new FileOutputStream(destination)) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, length);
+                }
+            }
+        }
+    }
     // Add Commands Here
     public void echo(String input){
 
@@ -60,6 +86,50 @@ public class Terminal {
     public void touch(String[] args){
 
     }
+    public void rm(String[] args) {
+        if (args.length != 1) {
+             System.out.print ("Usage: rm <file_name>");
+        }
+
+        String fileName = args[0];
+        File fileToDelete = new File(currentDirectory, fileName);
+
+        if (fileToDelete.exists() && fileToDelete.isFile()) {
+            if (fileToDelete.delete()) {
+                 System.out.print ("Removed file: " + fileName);
+            } else {
+                 System.out.print ("Failed to remove file: " + fileName);
+            }
+        } else {
+             System.out.print ("File not found: " + fileName);
+        }
+    }
+    public void cpR(String[] args) {
+        if (args.length != 2) {
+            System.out.print ("Usage: cp -r source_directory destination_directory");
+        }
+
+        String sourceDirectoryPath = args[0];
+        String destinationDirectoryPath = args[1];
+
+        File sourceDirectory = new File(sourceDirectoryPath);
+        File destinationDirectory = new File(destinationDirectoryPath);
+
+        if (!sourceDirectory.exists() || !sourceDirectory.isDirectory()) {
+            System.out.print ("Source directory does not exist.");
+        }
+
+        if (destinationDirectory.exists() && !destinationDirectory.isDirectory()) {
+            System.out.print ("Destination is not a directory.");
+        }
+
+        try {
+            copyDirectory(sourceDirectory, destinationDirectory);
+            System.out.print ("Directory copied successfully.");
+        } catch (IOException e) {
+            System.out.print ("Error copying directory: " + e.getMessage());
+        }
+    }
     // ...
     //This method will choose the suitable command method to be called
     public void chooseCommandAction(){
@@ -71,8 +141,15 @@ public class Terminal {
             
         }
         else if ("cd".equals(command)) {
-            cd(args);}
-        // write commmends conditions .....
+            cd(args);
+        }else if("rm".equals(command))
+        {
+            rm(args);
+        } else if ("cp".equals(command) && option!=null ) {
+            cpR(args);
+            
+        }
+        
         
         else {
             System.out.println("Error: '"+ command +"' not found or invalid parameters are entered!");
