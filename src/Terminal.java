@@ -1,9 +1,11 @@
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
+
 import java.io.File;
+
 public class Terminal {
     Parser parser;
-    File currentPath = new File(System.getProperty("user.dir"));
+    File currentPath =  new File(System.getProperty("user.dir"));
 
     // Add Commands Here
     public void echo(String input){
@@ -46,26 +48,5 @@ public class Terminal {
         }
 
     }
-    public static void main(String[] args) {
-        Terminal terminal = new Terminal();
-        System.out.println("Simple CLI - Type 'exit' to quit.");
-
-        while (true) {
-            System.out.print("> ");
-            
-            String input = System.console().readLine();
-            input.toLowerCase();
-            
-            if ("exit".equals(input)) {
-                break;
-            }
-            else if (terminal.parser.parse(input)) {
-                
-                terminal.chooseCommandAction();
-            } else {
-                System.out.println("Invalid command format.");
-            }
-        }
-
-    }
+   
 }
