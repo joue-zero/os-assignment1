@@ -15,6 +15,35 @@ public class Terminal {
 
     }
     public void cd(String[] args){
+        if (args.length == 0) {
+            // Case 1
+            File userHomeDirectory = new File(System.getProperty("user.home"));
+            System.out.println("Changed directory to home directory: " + userHomeDirectory.getAbsolutePath());
+            this.currentPath = userHomeDirectory;
+        } else if (args.length == 1) {
+            String newDirectory = args[0];
+            if (newDirectory.equals("..")) {
+                // Case 2
+                File parentDirectory = this.currentPath.getParentFile();
+                if (parentDirectory != null) {
+                    System.out.println("Changed directory to the previous directory: " + parentDirectory.getAbsolutePath());
+                    this.currentPath = parentDirectory;
+                } else {
+                    System.out.println("Already at the root directory, cannot go up.");
+                }
+            } else {
+                // Case 3
+                File newDir = new File(this.currentPath, newDirectory);
+                if (newDir.exists() && newDir.isDirectory()) {
+                    System.out.println("Changed directory to: " + newDir.getAbsolutePath());
+                    this.currentPath = newDir;
+                } else {
+                    System.out.println("Directory not found: " + newDirectory);
+                }
+            }
+        } else {
+            System.out.println("Usage: cd [directory]");
+        }
 
     }
     public void ls(String options){
@@ -41,6 +70,8 @@ public class Terminal {
              pwd();
             
         }
+        else if ("cd".equals(command)) {
+            cd(args);}
         // write commmends conditions .....
         
         else {
