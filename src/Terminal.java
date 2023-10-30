@@ -1,8 +1,15 @@
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Terminal {
     Parser parser;
@@ -47,7 +54,7 @@ public class Terminal {
     public void pwd(){
 
     }
-    public void cd(String[] args){
+    public void cd(String[] args) {
         if (args.length == 0) {
             // Case 1
             File userHomeDirectory = new File(System.getProperty("user.home"));
@@ -65,22 +72,28 @@ public class Terminal {
                 } else {
                     System.out.println("Already at the root directory, cannot go up.");
                 }
-            } else {
+            } else if (args.length >= 2) {
+                String newPath = args[0];
+                for (int i = 1; i < args.length; i++) {
+                    newPath += File.separator + args[i];
+                }
+                
                 // Case 3
-                File newDir = new File(this.currentPath, newDirectory);
+                File newDir = new File(this.currentPath, newPath);
                 if (newDir.exists() && newDir.isDirectory()) {
                     System.out.println("Changed directory to: " + newDir.getAbsolutePath());
                     this.currentPath = newDir;
                 } else {
-                    System.out.println("Directory not found: " + newDirectory);
+                    System.out.println("Directory not found: " + newPath);
                 }
             }
             history.add(parser.getFullCommand());
         } else {
             System.out.println("Usage: cd [directory]");
         }
-
     }
+
+    
     public void ls(String options){
         String folderPath = currentPath.getPath();
         File folder = new File(folderPath);
