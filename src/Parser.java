@@ -6,6 +6,8 @@ public class Parser {
     private String[] args;
 
     private String fullCommand;
+
+
     public boolean parse(String input) {
         fullCommand = input;
         String[] parts = input.split(" ");

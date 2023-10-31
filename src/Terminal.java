@@ -9,6 +9,8 @@ public class Terminal {
     File currentPath =  new File(System.getProperty("user.dir"));
 
     List<String> history;
+
+
     public Terminal(Parser parser) {
         this.parser = parser;
         this.history = new ArrayList<>();
@@ -40,10 +42,20 @@ public class Terminal {
             }
         }
     }
+
+
     // Add Commands Here
-    public void echo(String input){
+    public void echo(String[] args)
+    {
+        for(int i=0;i< args.length;i++)
+        {
+            System.out.print(args[i]);
+        }
+
+        history.add(parser.getFullCommand());
 
     }
+
     public void pwd(){
 
     }
@@ -108,11 +120,83 @@ public class Terminal {
         }
     }
 
-    public void mkdir(String[] args){
 
+   public void mkdir(String[] args)
+    {
+        for (int i=0;i<args.length;i++)
+        {
+            File directory = new File(args[i]);
+
+            //Handling Case of File Path
+            if (directory.isAbsolute() || args[i].contains(File.separator))
+            {
+                directory.mkdirs();
+
+            }
+            //Handling Case of DirectoryName
+            else
+            {
+                File newDir = new File(currentPath, args[i]);
+                newDir.mkdirs();
+            }
+        }
+        history.add(parser.getFullCommand());
     }
-    public void rmdir(String[] args){
 
+    public void rmdir(String[] args)
+    {
+        if(args.length > 1)
+        {
+            System.out.print("rmdir Takes Only One Argument");
+            return;
+        }
+
+        else if(args[0].equals("*"))
+        {
+            File[] directories = new File(this.currentPath.toString()).listFiles(File::isDirectory);
+
+
+            for (int i=0;i<directories.length;i++)
+            {
+
+                if (directories[i].list() != null && directories[i].list().length == 0)
+                {
+                    boolean isDeleted = directories[i].delete();
+                    if (isDeleted) {
+                        System.out.println(directories[i].getAbsolutePath() + " has been successfully deleted.");
+                    } else {
+                        System.out.println("Error occurred  " + directories[i].getAbsolutePath());
+                    }
+                }
+            }
+            history.add(parser.getFullCommand());
+        }
+
+        else
+        {
+            File directory = new File(args[0]);
+
+            if (!directory.exists() || !directory.isDirectory()) {
+                System.out.println(args[0] + " is not a valid directory.");
+                return;
+            }
+
+            if (directory.list().length > 0) {
+                System.out.println(args[0] + " is not empty.");
+                return;
+            }
+
+            boolean isDeleted = directory.delete();
+
+            if (isDeleted) {
+                System.out.println("Directory  Has been successfully deleted.");
+                history.add(parser.getFullCommand());
+
+            } else {
+                System.out.println("Error occurred Try Again :) " + args[0]);
+            }
+
+        }
     }
 
     public void touch(String[] args){
@@ -232,6 +316,18 @@ public class Terminal {
             ls(option);
         }else if("history".equals(command)){
             getHistory();
+        } else if ("mkdir".equals(command))
+        {
+            mkdir(args);
+
+        } else if ("echo".equals(command))
+        {
+            echo(args);
+
+        } else if ("rmdir".equals(command))
+        {
+            rmdir(args);
+
         } else {
             System.out.println("Error: '"+ command +"' not found or invalid parameters are entered!");
         }
