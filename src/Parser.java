@@ -10,7 +10,7 @@ public class Parser {
         fullCommand = input;
         String[] parts = input.split(" ");
         if (parts.length > 0) {
-            commandName = parts[0];
+            commandName = parts[0].toLowerCase();
             if (parts.length > 1 && parts[1].startsWith("-")) {
                 option = parts[1].substring(1);
                 args = Arrays.copyOfRange(parts, 2, parts.length);

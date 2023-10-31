@@ -73,13 +73,19 @@ public class Terminal {
                     System.out.println("Already at the root directory, cannot go up.");
                 }
             } else if (args.length >= 2) {
+                // Case 3
+                File newDir;
                 String newPath = args[0];
                 for (int i = 1; i < args.length; i++) {
-                    newPath += File.separator + args[i];
+                    newPath +=  args[i];
                 }
-                
-                // Case 3
-                File newDir = new File(this.currentPath, newPath);
+                if(newPath.startsWith(File.separator) || new File(newPath).isAbsolute() || newPath.contains(":"))
+                {
+                    newDir = new File(newPath);
+                }
+                else{
+                      newDir = new File(this.currentPath, newPath);
+                } 
                 if (newDir.exists() && newDir.isDirectory()) {
                     System.out.println("Changed directory to: " + newDir.getAbsolutePath());
                     this.currentPath = newDir;

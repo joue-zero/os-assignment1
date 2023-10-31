@@ -14,7 +14,7 @@ public class Main
 
             String input = scanner.nextLine();
 //            scanner.close();
-            input.toLowerCase();
+           // input.toLowerCase();
             
             if ("exit".equals(input)) {
                 break;
