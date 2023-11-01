@@ -63,9 +63,10 @@ public class Terminal {
 
     }
 
-    public void pwd(){
+    public void pwd() throws IOException{
+          System.out.println("Current dir:" + currentPath);
+    }
 
-    }
     public void cd(String[] args) {
         if (args.length == 0) {
             // Case 1
