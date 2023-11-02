@@ -4,14 +4,20 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 public class Terminal {
     Parser parser;
@@ -143,6 +149,39 @@ public class Terminal {
         }
     }
 
+    public void wc(String[] args)
+    {
+        if (args.length != 1) {
+            System.out.println("Usage: java WC <filename>");
+            return;
+        }
+
+        String filename = currentPath + File.separator + args[0];
+        int lineCount = 0;
+        int wordCount = 0;
+        int charCount = 0;
+
+        try {
+            Scanner scanner = new Scanner(new File(filename));
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                lineCount++;
+                charCount += line.length();
+                String[] words = line.split("\\s+");
+                wordCount += words.length;
+            }
+            scanner.close();
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + filename);
+            return;
+        }
+
+        System.out.println( lineCount + " lines, " + wordCount + " words, " + charCount + " character with spaces, " + filename);
+
+        history.add(parser.getFullCommand());
+    
+    }
+
     
     public void ls(String options){
         String folderPath = currentPath.getPath();
@@ -250,7 +289,33 @@ public class Terminal {
         }
     }
 
-    public void touch(String[] args){
+    public void touch(String[] args){ 
+            long timestamp = System.currentTimeMillis();
+            if (args.length < 1) {
+                System.out.println("Usage: touch <file_path>");
+                return;
+            }
+            history.add(parser.getFullCommand());
+            String filePath = args[0];
+            Path path = Paths.get(filePath);
+        
+            if (!Files.exists(path)) {
+                try {
+                    Files.createFile(path);
+                } catch (IOException e) {
+                    
+                    e.printStackTrace();
+                }
+            }
+        
+            FileTime fileTime = FileTime.fromMillis(timestamp);
+            try {
+                Files.setLastModifiedTime(path, fileTime);
+            } catch (IOException e) {
+                
+                e.printStackTrace();
+            }
+        
 
     }
     public  void Cat(String[] args) {
@@ -399,6 +464,9 @@ public class Terminal {
         {
             Cat(args);
            
+        } else if("wc".equals(command))
+        {
+            wc(args);
         }
          else {
             System.out.println("Error: '"+ command +"' not found or invalid parameters are entered!");
