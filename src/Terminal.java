@@ -1,9 +1,11 @@
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,6 +51,32 @@ public class Terminal {
             }
         }
     }
+    private  void catSingleFile(String filePath) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading the file: " + e.getMessage());
+        }
+ }
+  private  void catTwoFiles(String filePath1, String filePath2) {
+    try (BufferedReader reader1 = new BufferedReader(new FileReader(filePath1));
+         BufferedReader reader2 = new BufferedReader(new FileReader(filePath2))) {
+        String line;
+        while ((line = reader1.readLine()) != null) {
+            System.out.println(line);
+        }
+        while ((line = reader2.readLine()) != null) {
+            System.out.println(line);
+        }
+    } catch (IOException e) {
+        System.err.println("Error reading the files: " + e.getMessage());
+    }
+    
+}
+
 
 
     // Add Commands Here
@@ -63,9 +91,11 @@ public class Terminal {
 
     }
 
-    public void pwd() throws IOException{
-          System.out.println("Current dir:" + currentPath);
-    }
+    public void pwd()
+    {
+        System.out.println("Current dir:" + this.currentPath.getAbsolutePath());
+        history.add(parser.getFullCommand());
+    }
 
     public void cd(String[] args) {
         if (args.length == 0) {
@@ -74,6 +104,7 @@ public class Terminal {
             System.out.println("Changed directory to home directory: " + userHomeDirectory.getAbsolutePath());
             this.currentPath = userHomeDirectory;
             history.add(parser.getFullCommand());
+            
         } else if (args.length == 1) {
             String newDirectory = args[0];
             if (newDirectory.equals("..")) {
@@ -82,30 +113,30 @@ public class Terminal {
                 if (parentDirectory != null) {
                     System.out.println("Changed directory to the previous directory: " + parentDirectory.getAbsolutePath());
                     this.currentPath = parentDirectory;
-                } else {
+                } else{
                     System.out.println("Already at the root directory, cannot go up.");
                 }
-            } else if (args.length >= 2) {
-                // Case 3
-                File newDir;
-                String newPath = args[0];
-                for (int i = 1; i < args.length; i++) {
-                    newPath +=  args[i];
-                }
-                if(newPath.startsWith(File.separator) || new File(newPath).isAbsolute() || newPath.contains(":"))
-                {
-                    newDir = new File(newPath);
-                }
-                else{
-                      newDir = new File(this.currentPath, newPath);
-                } 
-                if (newDir.exists() && newDir.isDirectory()) {
-                    System.out.println("Changed directory to: " + newDir.getAbsolutePath());
-                    this.currentPath = newDir;
-                } else {
-                    System.out.println("Directory not found: " + newPath);
-                }
-            }
+            } else {                
+                	  File newDir;
+                      String newPath = args[0];
+                      for (int i = 1; i < args.length; i++) {
+                          newPath +=  args[i];
+                      }
+                      if(newPath.startsWith(File.separator) || new File(newPath).isAbsolute() || newPath.contains(":"))
+                      {
+                          newDir = new File(newPath);
+                      }
+                      else{
+                            newDir = new File(this.currentPath, newPath);
+                      } 
+                      if (newDir.exists() && newDir.isDirectory()) {
+                          System.out.println("Changed directory to: " + newDir.getAbsolutePath());
+                          this.currentPath = newDir;
+                      } else {
+                          System.out.println("Directory not found: " + newPath);
+                      }
+                  
+            } 
             history.add(parser.getFullCommand());
         } else {
             System.out.println("Usage: cd [directory]");
@@ -222,6 +253,20 @@ public class Terminal {
     public void touch(String[] args){
 
     }
+    public  void Cat(String[] args) {
+        if (args.length == 1) {
+            catSingleFile(args[0]);
+            
+        } else if (args.length == 2) {
+            catTwoFiles(args[0], args[1]);
+            
+        } else {
+            System.err.println("Usage: CatFiles <file1> [file2]");
+            return;
+        }
+        history.add(parser.getFullCommand());
+    }
+
     public void rm(String[] args) {
         if (args.length != 1) {
             System.out.println("Usage: rm <file_name>");
@@ -293,7 +338,6 @@ public class Terminal {
             System.out.print ("Destination is not a directory.");
             return;
         }
-
         try {
             FileInputStream inputStream = new FileInputStream(sourceFile);
             FileOutputStream outputStream = new FileOutputStream(destinationFile);
@@ -348,7 +392,15 @@ public class Terminal {
         {
             rmdir(args);
 
-        } else {
+        } else if("touch".equals(command))
+        {
+            touch(args);
+        } else if("cat".equals(command))
+        {
+            Cat(args);
+           
+        }
+         else {
             System.out.println("Error: '"+ command +"' not found or invalid parameters are entered!");
         }
 
